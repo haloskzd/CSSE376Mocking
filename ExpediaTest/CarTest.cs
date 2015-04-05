@@ -1,6 +1,8 @@
 using System;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Expedia;
+using System.Collections.Generic;
 using Rhino.Mocks;
 
 namespace ExpediaTest
@@ -50,5 +52,46 @@ namespace ExpediaTest
 		{
 			new Car(-5);
 		}
+
+        [TestMethod]
+        public void TestThatCarDoesGetCarLocationFromDatabase()
+        {
+            IDatabase mockDB = mocks.StrictMock<IDatabase>();
+            String carLocation = "Panama";
+            String anotherCarLocation = "Terre Haute";
+            Expect.Call(mockDB.getCarLocation(100)).Return(carLocation);
+            Expect.Call(mockDB.getCarLocation(200)).Return(anotherCarLocation);
+            mocks.ReplayAll();
+            Car target = new Car(7);
+            target.Database = mockDB;
+            String result;
+            result = target.getCarLocation(200);
+            Assert.AreEqual(anotherCarLocation, result);
+            result = target.getCarLocation(100);
+            Assert.AreEqual(carLocation, result);
+            mocks.VerifyAll();
+        }
+
+        [TestMethod]
+        public void TestThatMileageDoesGetCarLocationFromDatabase()
+        {
+            IDatabase mockDatabase = mocks.StrictMock<IDatabase>();
+            int Mileage = 100;
+            Expect.Call(mockDatabase.Miles).PropertyBehavior();
+            mocks.ReplayAll();
+            mockDatabase.Miles = Mileage;
+            var target = new Car(7);
+            target.Database = mockDatabase;
+            int Miles = target.Mileage;
+            Assert.AreEqual(Miles, Mileage);
+            mocks.VerifyAll();
+        }
+
+        [TestMethod]
+        public void IKnowObjectMother()
+        {
+            var target = ObjectMother.BMW();
+            Assert.AreEqual(target.Name, "BMW i8");
+        }
 	}
 }

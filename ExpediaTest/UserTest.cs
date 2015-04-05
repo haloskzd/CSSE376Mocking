@@ -84,6 +84,40 @@ namespace ExpediaTest
 			target.book(car);
 			Assert.AreEqual(flight.getBasePrice() + car.getBasePrice(), target.Price);
 		}
+
+        [TestMethod()]
+        public void TestThatUserDoesRemoveCarFromServiceLocatorWhenBooked()
+        {
+            ServiceLocator serviceLocator = new ServiceLocator();
+            var carToBook = new Car(5);
+            var remainingCar = new Car(7);
+            serviceLocator.AddCar(carToBook);
+            serviceLocator.AddCar(remainingCar);
+            typeof(ServiceLocator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)
+                .SetValue(serviceLocator, serviceLocator);
+            var target = new User("JJ");
+            target.book(carToBook);
+            Assert.AreEqual(1, ServiceLocator.Instance.AvailableCars.Count);
+            Assert.AreSame(remainingCar, ServiceLocator.Instance.AvailableCars[0]);
+        }
+
+        [TestMethod()]
+        public void TestThatUserDoesRemoveFlightFromServiceLocatorWhenBooked()
+        {
+            ServiceLocator serviceLocator = new ServiceLocator();
+            DateTime StartDate = new DateTime(2009, 11, 1);
+		    DateTime EndDate = new DateTime(2009, 11, 30);
+            var bookFlight = new Flight(StartDate, EndDate, 100);
+            var otherFlight = new Flight(StartDate, EndDate, 200);
+            serviceLocator.AddFlight(bookFlight);
+            serviceLocator.AddFlight(otherFlight);
+            typeof(ServiceLocator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)
+                .SetValue(serviceLocator, serviceLocator);
+            var target = new User("Timothy");
+            target.book(bookFlight);
+            Assert.AreEqual(1, ServiceLocator.Instance.AvailableFlights.Count);
+            Assert.AreSame(otherFlight, ServiceLocator.Instance.AvailableFlights[0]);
+        }
 		
 		[TestCleanup]
 		public void TearDown()
